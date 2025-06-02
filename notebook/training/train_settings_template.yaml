@@ -20,3 +20,5 @@ hsv_h: 0.015
 hsv_s: 0.7
 hsv_v: 0.4
 cutmix: 0.0
+auto_augment: randaugment
+erasing: 0.4

@@ -1,6 +1,6 @@
 data: dataset_path/data.yaml
-project_dir: project_dir
-exp_name: exp_name
+project: project_dir
+name: experiment_name
 verbose: True
 save: True
 epochs: 100

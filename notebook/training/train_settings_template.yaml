@@ -6,6 +6,7 @@ save: True
 epochs: 100
 imgsz: 416
 batch: -1
+patience: 100
 fliplr: 0.5
 flipud: 0.0
 shear: 0.0

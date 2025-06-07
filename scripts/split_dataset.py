@@ -8,8 +8,8 @@ random.seed(42)
 
 #path dataset merged
 base_dir = Path(".")
-original_images = base_dir / "merged" / "images"
-original_labels = base_dir / "merged" / "labels"
+original_images = base_dir / "merged" / "train" / "images"
+original_labels = base_dir / "merged" / "train" / "labels"
 
 #divisione effettuata
 train_perc = 0.7
@@ -39,8 +39,10 @@ splits = {
 
 #funzione utility per copiare immagini e relative labe
 def copy_files(file_list, split_name):
-    img_out_dir = base_dir / split_name / "images"
-    lbl_out_dir = base_dir / split_name / "labels"
+    base_dir = Path(".")
+    
+    img_out_dir = base_dir / "out_dataset" / split_name / "images"
+    lbl_out_dir = base_dir / "out_dataset" / split_name / "labels"
     img_out_dir.mkdir(parents=True, exist_ok=True)
     lbl_out_dir.mkdir(parents=True, exist_ok=True)
 

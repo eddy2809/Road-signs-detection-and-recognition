@@ -3,7 +3,15 @@
 Created on Wed May 28 13:58:00 2025
 
 @author: loren
+
+Questo script unisce tre dataset YOLO in un unico dataset finale,
+assicurando che le classi siano coerenti e correttamente rimappate. 
+Lo script è stato creato per superare i limiti della versione free di Roboflow, che
+non consente di caricare all'interno del proprio workspace personale un dataset contenente 
+più di 10.000 elementi.
+ 
 """
+
 
 import os
 import shutil

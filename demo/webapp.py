@@ -1,209 +1,272 @@
-import streamlit as st                   
-from PIL import Image                   
-import numpy as np                      
-from ultralytics import YOLO            
-import time                             
-import cv2                              
-import os                               
+# Importiamo le librerie necessarie
+import streamlit as st                    
+from PIL import Image                    
+import numpy as np                       
+from ultralytics import YOLO             
+import time, datetime, os                
+import cv2                               
 
-# Carica il modello YOLO dal percorso specificato
+# Carica il modello YOLO pre-addestrato
 model = YOLO("./yolo12_no_harmful_aug_640/weights/best.pt")
 
-# Sidebar per scegliere tra elaborazione immagine o video
+# Sidebar: selezione modalità (immagine o video)
 mode = st.sidebar.selectbox("Seleziona modalità", ["Immagine", "Video"])
 
 # Titolo della WebApp
 st.title("YOLO Object Detection WebApp")
 
-# Scelta della dimensione imgsz usata per il resize prima dell’inferenza
+# Selezione dimensione immagini per il resize prima dell'inferenza
 imgsz = st.selectbox(
     "Seleziona dimensione imgsz per l'inferenza",
-    [416, 512, 640, 768, 1024, 1280, 1600, 2048],
-    index=2,
+    ["Nessun ridimensionamento", 416, 512, 640, 768, 1024, 1280, 1600, 2048],
+    index=3,
     help=(
         "imgsz è la dimensione a cui l'immagine o il frame video verrà ridimensionato prima dell'inferenza. "
-        "YOLO richiede input quadrati (es. imgsz=640 implica un ridimensionamento a 640×640 pixel). "
-        "Valori più alti possono migliorare la precisione nel rilevamento di oggetti piccoli, "
-        "ma aumentano il tempo di elaborazione e il consumo di memoria. "
-        "Valori più bassi offrono inferenze più veloci ma possono ridurre la qualità del rilevamento."
+        "YOLO richiede input quadrati. Valori più alti migliorano il rilevamento ma aumentano il tempo di elaborazione."
     )
 )
 
-# Slider per selezionare la soglia di confidenza per le predizioni
+# Slider per impostare la soglia di confidenza
 conf = st.slider(
     "Soglia di confidenza (conf)",
-    min_value=0.1,
+    min_value=0.0,
     max_value=1.0,
     value=0.25,
     step=0.05,
     help=(
-        "conf è la soglia di confidenza minima per mantenere una predizione. "
-        "Ogni rilevamento è associato a un punteggio (confidenza) tra 0 e 1 che indica quanto il modello è sicuro. "
-        "Aumentare conf riduce i falsi positivi ma può nascondere oggetti rilevati con bassa certezza. "
-        "Valori più bassi mostrano più risultati ma includono anche quelli più incerti."
+        "conf è la soglia di confidenza minima per visualizzare una predizione. "
+        "Valori alti filtrano i risultati meno certi."
     )
 )
 
-# Inizializzazione dello stato dell'applicazione
+# Inizializza lo stato persistente dell'app
 if "processing" not in st.session_state:
     st.session_state.processing = False
 if "stop" not in st.session_state:
     st.session_state.stop = False
 
-# Modalità immagine
+# === MODALITÀ IMMAGINE ===
 if mode == "Immagine":
+    # Caricamento file immagine
     uploaded_file = st.file_uploader("Carica un'immagine", type=['jpg', 'jpeg', 'png'])
 
     if uploaded_file is not None:
-        image = Image.open(uploaded_file).convert("RGB")  # Apre l'immagine e la converte in RGB
-        image_np = np.array(image)                        # Converte l'immagine in array NumPy
+        # Salva immagine temporaneamente
+        temp_image_path = "temp_image.jpg"
+        with open(temp_image_path, "wb") as f:
+           f.write(uploaded_file.getvalue())
 
-        # Ottieni dimensioni originali
+        # Apre l'immagine e la converte in RGB
+        image = Image.open(uploaded_file).convert("RGB")
+        image_np = np.array(image)  # Converte in array NumPy
+
+        # Ottiene dimensioni immagine originali
         original_height, original_width, _ = image_np.shape
-        st.info(f"Dimensione immagine: {original_width}x{original_height} - Inferenza con imgsz={imgsz}x{imgsz} - conf={conf}")
+        st.info(f"Dimensione immagine: {original_width}x{original_height} - Inferenza con imgsz={imgsz}x{imgsz} - conf={conf}") 
 
-        # Esegui inferenza e misura il tempo
+        # Esegue l'inferenza e misura il tempo
         start_time = time.time()
-        results = model.predict(image_np, imgsz=imgsz, conf=conf)
+        results = model.predict(temp_image_path, imgsz=imgsz, conf=conf)
         inference_time = time.time() - start_time
 
-        # Disegna le predizioni
+        # Disegna i bounding box sulle predizioni
         res_plotted = results[0].plot()
 
-        # Mostra immagine originale e immagine con bounding box affiancate
+        # Mostra immagini prima e dopo il rilevamento
         col1, col2 = st.columns(2)
         with col1:
             st.image(image_np, caption="Immagine Originale", use_column_width=True)
         with col2:
-            st.image(res_plotted, caption="Risultato YOLO", use_column_width=True)
+            res_plotted_rgb = cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
+            st.image(res_plotted_rgb, caption="Risultato YOLO", use_column_width=True)
 
-        # Mostra tempo di inferenza
+        # Visualizza il tempo di inferenza
         st.success(f"Inferenza completata in {inference_time:.2f} secondi.")
 
-# Modalità video
+# === MODALITÀ VIDEO ===
 elif mode == "Video":
+    # Caricamento file video
     uploaded_video = st.file_uploader("Carica un video", type=["mp4"])
 
     if uploaded_video is not None:
-        temp_input_path = "temp_video.mp4"      # Percorso temporaneo per il video caricato
-        temp_output_path = "output_video.mp4"   # Percorso per il video di output finale
-        frames_dir = "frames"                   # Cartella per salvare i frame elaborati
-        os.makedirs(frames_dir, exist_ok=True)  # Crea la cartella se non esiste
-
-        # Salva il video caricato su disco
+        # Salva video temporaneamente
+        temp_input_path = "temp_video.mp4"
         with open(temp_input_path, "wb") as f:
             f.write(uploaded_video.read())
 
-        # Apre il video con OpenCV
-        cap = cv2.VideoCapture(temp_input_path)
+        st.info("Video caricato. Pronto per l'inferenza.")
 
-        # Ottiene dimensioni e FPS del video
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = cap.get(cv2.CAP_PROP_FPS)
+        # Inizializza le variabili di stato se non esistono
+        if "stop_inferenza" not in st.session_state:
+            st.session_state.stop_inferenza = False
+        if "elaborazione_in_corso" not in st.session_state:
+            st.session_state.elaborazione_in_corso = False
+        if "elaborazione_interrotta" not in st.session_state:
+            st.session_state.elaborazione_interrotta = False
 
-        # Mostra info video all'utente
-        st.info(
-            f"Risoluzione video: {width}x{height} - FPS: {fps:.2f} "
-            f"- Inferenza con imgsz={imgsz}x{imgsz} - conf={conf}"
-        )
+        # Colonne per pulsanti "Avvia" e "Interrompi"
+        col1, col2 = st.columns(2)
 
-        stframe = st.empty()  # Placeholder per mostrare frame nella UI
-        
-        
         # Pulsante per avviare l'elaborazione
-        if st.button("Avvia elaborazione"):
-            # Pulizia automatica dei frame salvati precedenti
-            for file in os.listdir(frames_dir):
-                file_path = os.path.join(frames_dir, file)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+        if col1.button("Avvia elaborazione"):
+            st.session_state.stop_inferenza = False
+            st.session_state.elaborazione_in_corso = True
+            st.experimental_rerun()
 
-            st.session_state.processing = True
-            st.session_state.stop = False
-            st.session_state.elaborazione_completata = False  # Reset stato finale
+        # Pulsante per interrompere l'elaborazione (attivo solo se in corso)
+        if col2.button("Interrompi elaborazione", disabled=not st.session_state.elaborazione_in_corso):
+            st.session_state.stop_inferenza = True
+            st.session_state.elaborazione_in_corso = False
+            st.session_state.elaborazione_interrotta = True
+            st.experimental_rerun()
 
+        # Messaggio se l'elaborazione è stata interrotta
+        elif st.session_state.elaborazione_interrotta:
+            st.warning("⚠️ L'elaborazione è stata interrotta. I frame elaborati e il video parziale sono stati salvati rispettivamente nelle cartelle frames e videos.")
+            st.session_state.elaborazione_interrotta = False
 
-        # Pulsante per interrompere manualmente
-        if st.button("Interrompi elaborazione"):
-            st.session_state.stop = True
+        # === Inferenza frame per frame ===
+        if st.session_state.elaborazione_in_corso:
+            # UI dinamica
+            progress_bar = st.progress(0)
+            time_remaining_placeholder = st.empty()
+            log_output = st.empty()
+            stframe = st.empty()
+            download_placeholder = st.empty()
+            status_message = st.empty()
+            status_message.info("Inferenza YOLO in corso sul video...")
 
-        # Se l'elaborazione è attiva
-        if st.session_state.get("processing", False):
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec MP4
-            out = cv2.VideoWriter(temp_output_path, fourcc, fps, (width, height))
-
-            st.info("Elaborazione video frame-by-frame in corso...")
-            frame_idx = 0  # Contatore dei frame
-
-            while cap.isOpened():
-                ret, frame = cap.read()
-                if not ret or st.session_state.stop:
-                    break  # Fine video o interruzione
-
-                # Converte il frame in RGB per YOLO
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-                # Inferenza YOLO sul frame
-                start_time = time.time()
-                results = model.predict(frame_rgb, imgsz=imgsz, conf=conf)
-                inference_time = time.time() - start_time
-
-                # Disegna le predizioni
-                res_plotted = results[0].plot()
-                res_bgr = cv2.cvtColor(res_plotted, cv2.COLOR_RGB2BGR)
-
-                # Salva il frame nel video e come immagine
-                out.write(res_bgr)
-                frame_filename = os.path.join(frames_dir, f"frame_{frame_idx:04d}.jpg")
-                cv2.imwrite(frame_filename, res_bgr)
-                frame_idx += 1
-
-                # Mostra il frame aggiornato
-                stframe.image(
-                    res_plotted,
-                    caption=f"Inferenza: {inference_time:.2f}s",
-                    channels="RGB",
-                    use_column_width=True
-                )
-
-            # Rilascia risorse
+            # Caricamento info video
+            cap = cv2.VideoCapture(temp_input_path)
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = cap.get(cv2.CAP_PROP_FPS)
             cap.release()
-            out.release()
-            st.session_state.processing = False
-            st.session_state.elaborazione_completata = True  # Abilita download video
 
-            if st.session_state.stop:
-                st.warning("Elaborazione interrotta manualmente. I frame sono stati salvati nella cartella frames.")
-            else:
-                st.success("Elaborazione completata con successo. I frame sono stati salvati nella cartella frames.")
+            # Crea nomi per cartelle di output (video e frame)
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            base_filename = os.path.splitext(os.path.basename(temp_input_path))[0]
+            output_video_path = os.path.join("videos", f"{base_filename}_{timestamp}.mp4")
+            output_frames_subdir = os.path.join("frames", f"{base_filename}_{timestamp}")
+            os.makedirs("videos", exist_ok=True)
+            os.makedirs(output_frames_subdir, exist_ok=True)
 
-        # Mostra il bottone per scaricare il video solo dopo stop o completamento
-        if st.session_state.get("elaborazione_completata", False):
+            # Inizializza salvataggio video
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
+
+            # Inizio inferenza
+            start_time = time.time()
+            results = model.predict(
+                source=temp_input_path,
+                imgsz=imgsz,
+                conf=conf,
+                stream=True  # Modalità streaming per processare frame per frame
+            )
+
+            # Loop su ogni frame
+            current_frame = 0
+            for result in results:
+                # Se è stato cliccato "interrompi"
+                if st.session_state.stop_inferenza:
+                    log_output.warning("🛑 Elaborazione interrotta.")
+                    break
+
+                # Disegna bounding box e mostra in tempo reale
+                plotted = result.plot()
+                frame_rgb = cv2.cvtColor(plotted, cv2.COLOR_BGR2RGB)
+                stframe.image(frame_rgb, caption=f"Frame {current_frame + 1}", channels="RGB", use_column_width=True)
+
+                # Salva il frame come immagine
+                frame_path = os.path.join(output_frames_subdir, f"frame_{current_frame:04d}.jpg")
+                cv2.imwrite(frame_path, plotted)
+
+                # Scrive frame su file video
+                video_writer.write(plotted)
+
+                # Aggiorna barra di avanzamento e tempo stimato
+                current_frame += 1
+                progress = min(current_frame / total_frames, 1.0)
+                progress_bar.progress(progress)
+                elapsed = time.time() - start_time
+                eta = (elapsed / current_frame) * (total_frames - current_frame) if current_frame > 0 else 0
+                eta_formatted = str(datetime.timedelta(seconds=int(eta)))
+                time_remaining_placeholder.caption(f"⏱️ Tempo stimato rimanente: {eta_formatted}")
+                log_output.code(f"Frame {current_frame} elaborato", language="log")
+
+            # Termina e chiude il video
+            video_writer.release()
+            st.session_state.elaborazione_in_corso = False
+
+            # Messaggi finali
+            progress_bar.progress(1.0)
+            time_remaining_placeholder.caption("✅ Elaborazione completata.")
+            status_message.success("✅ Inferenza completata con successo.")
+
+            # Rimuove il file video temporaneo
+            if os.path.exists(temp_input_path):
+                os.remove(temp_input_path)
+
+            # Download video
             st.markdown("---")
-            st.subheader("Scarica il video generato dai frame salvati")
+            st.subheader("Scarica il video elaborato")
+            if os.path.exists(output_video_path):
+                with open(output_video_path, "rb") as f:
+                    st.download_button(
+                        label="Scarica video con predizioni",
+                        data=f,
+                        file_name=os.path.basename(output_video_path),
+                        mime="video/mp4"
+                    )
+            else:
+                st.warning("⚠️ Il file video non è stato generato correttamente.")
 
-            # Funzione per creare video a partire dai frame salvati
-            def genera_video_da_frame(output_path, frame_folder, width, height, fps):
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-                frame_files = sorted([f for f in os.listdir(frame_folder) if f.endswith(".jpg")])
-                for file in frame_files:
-                    frame_path = os.path.join(frame_folder, file)
-                    frame = cv2.imread(frame_path)
-                    out.write(frame)
-                out.release()
 
-            # Genera e scarica il video dai frame
-            genera_video_da_frame(temp_output_path, frames_dir, width, height, fps)
 
-            with open(temp_output_path, "rb") as f:
-                st.download_button(
-                    "Scarica video elaborato",
-                    f,
-                    file_name="output_video.mp4",
-                    mime="video/mp4"
-                )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

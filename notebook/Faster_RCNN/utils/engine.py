@@ -12,6 +12,12 @@ from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import to_pil_image
 
+def mean_ignore_neg_one(tensor):
+    mask = tensor != -1.0  # True dove valore valido
+    valid_values = tensor[mask]
+    if len(valid_values) == 0:
+        return float('nan')  # o qualche valore di fallback
+    return valid_values.mean().item()
 
 def evaluate_metrics(experiment_name,model, data_loader, device,epoch,set):
     """
@@ -32,23 +38,32 @@ def evaluate_metrics(experiment_name,model, data_loader, device,epoch,set):
     csv_path = f"{experiment_name}/{set}_metrics.csv"
     mAP50 = 0.0
     model.eval()
-    metric = MeanAveragePrecision()
+    metric = MeanAveragePrecision(class_metrics=True)
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
 
     with torch.no_grad():
-        for images, targets in tqdm(data_loader, desc="\t\tEvaluating"):
+        for images, targets in tqdm(data_loader, desc="\t\t"):
             images = [img.to(device) for img in images]
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
             outputs = model(images)
+            # for output in outputs:
+            #     keep = output["scores"] > 0.25  # puoi alzarlo a 0.2-0.3 se vuoi più pulizia
+            #     for key in ["boxes", "labels", "scores"]:
+            #         output[key] = output[key][keep]
             metric.update(outputs, targets)
             torch.cuda.empty_cache()
 
     results = metric.compute()
-
+    precision = 0.0
+    recall = 0.0
+    f1_score = 0.0
     for k, v in results.items():
         if isinstance(v, torch.Tensor):
+            if(k=="map_per_class"):
+                precision = mean_ignore_neg_one(v)
+            if(k=="mar_100_per_class"):  
+                recall = mean_ignore_neg_one(v)
             if(k=="map_50"):
-                print(f"\t\t{k}: {v.item() if v.numel() == 1 else v}")
                 mAP50 = v.item()
     metric.reset()
     # Save to CSV
@@ -56,6 +71,12 @@ def evaluate_metrics(experiment_name,model, data_loader, device,epoch,set):
                for k, v in results.items()}
 
     if (epoch is not None): summary = dict([("epoch", epoch)] + list(summary.items()))
+
+    if(precision and recall !=0):f1_score = 2 * (precision * recall) / (precision + recall)
+        
+    summary["precision"] = precision
+    summary["recall"] = recall
+    summary["f1_score"] = f1_score
 
     df = pd.DataFrame([summary])
     write_header = not os.path.exists(csv_path)
@@ -111,7 +132,7 @@ def show_predictions(experiment_name,model, dataset, device, score_threshold=0.2
         
     print(f"saved prediction to: {output_dir}")
 
-def load_custom_fasterrcnn_model(model_path, num_classes,imgsz):
+def load_custom_fasterrcnn_model(model_path,imgsz):
     """
     Carica un modello Faster R-CNN ResNet50 addestrato per un task personalizzato,
     usando i pesi salvati con `state_dict`.
@@ -126,13 +147,15 @@ def load_custom_fasterrcnn_model(model_path, num_classes,imgsz):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Carica il modello base
-    model = get_model(num_classes=num_classes,imgsz=imgsz)
-
+    checkpoints = torch.load(model_path, map_location=device)
     # Carica i pesi salvati
-    model.load_state_dict(torch.load(model_path, map_location=device,weights_only=True))
-
+    model = checkpoints['model_state_dict']
+    classes = checkpoints['class_names']
+    #model.load_state_dict(torch.load(model_path, map_location=device,weights_only=True))
+    new_model = get_model(num_classes=len(classes),imgsz=imgsz)
+    new_model.load_state_dict(model)
     # Sposta il modello sul dispositivo corretto
-    model.to(device)
-    model.eval()
+    new_model.to(device)
+    new_model.eval()
 
-    return model
+    return new_model,classes

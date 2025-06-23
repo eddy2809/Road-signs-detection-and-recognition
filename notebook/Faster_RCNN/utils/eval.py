@@ -12,7 +12,7 @@ from utils.engine import load_custom_fasterrcnn_model
 
 
 
-def eval(experiment_name,model,dataset_path,batch_size=1,imgsz=416):
+def dataset_eval(experiment_name,model,dataset_path,imgsz=416):
     
     #EVALUATION SUL TEST SET CON IL BEST MODEL SELEZIONATO
     """
@@ -30,12 +30,11 @@ def eval(experiment_name,model,dataset_path,batch_size=1,imgsz=416):
         Nessuno
 
     """
-
+    batch_size=1 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    dataset_train = VOCDataset(dataset_path, image_set="train")
     dataset_test = VOCDataset(dataset_path, image_set="test")
     data_loader_test = DataLoader(dataset_test, batch_size, shuffle=True, collate_fn=collate_fn)
-    model =  load_custom_fasterrcnn_model(model_path=f"{experiment_name}/weights/fasterrcnn_voc_best.pth", num_classes=len(dataset_train.classes),imgsz=imgsz)
+    model,_ =  load_custom_fasterrcnn_model(model_path=f"{experiment_name}/weights/fasterrcnn_voc_best.pth",imgsz=imgsz)
     print("Score sul test set:\t")
 
     evaluate_metrics(experiment_name=experiment_name,model=model, data_loader=data_loader_test, device=device, epoch=None,set="test")

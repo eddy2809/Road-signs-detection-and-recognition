@@ -13,7 +13,7 @@ from models.faster_rcnn import get_model
 
 
 
-def train(experiment_name,dataset_path,batch_size=1,imgsz=416,momentum=0.9,lr=0.005):
+def dataset_train(experiment_name,dataset_path,epochs=5,imgsz=416,momentum=0.9,lr=0.005):
     
     """
     Addestra un modello Faster R-CNN con un backbone ResNet50 su un set di dati personalizzato.
@@ -21,16 +21,16 @@ def train(experiment_name,dataset_path,batch_size=1,imgsz=416,momentum=0.9,lr=0.
     Argomenti:
         experiment_name (str): il nome dell'esperimento, utilizzato per salvare i log e i pesi del modello.
         dataset_path (str): percorso del set di dati, che deve essere in formato VOC.
-        batch_size (int, opzionale): numero di campioni per batch da caricare. Il valore predefinito è 1.
+        epochs (int, opzionale): numero di epoche di addestramento. Il valore predefinito é 5.
         imgsz (int, opzionale): dimensione delle immagini utilizzate per l'addestramento. Il valore predefinito è 416.
 
     Restituisce:
         torch.nn.Module: il modello addestrato.
     """
-
+    batch_size=1 #fisso per frcnn altrimenti da problemi
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     save_weights_dir = f"{experiment_name}/weights"
-    num_epochs = 5
+    
     writer = SummaryWriter(f"logs/faster_rcnn50/{experiment_name}")
     
     dataset_train = VOCDataset(dataset_path, image_set="train")
@@ -48,11 +48,11 @@ def train(experiment_name,dataset_path,batch_size=1,imgsz=416,momentum=0.9,lr=0.
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
     best_score_valid = 0.0
-    for epoch in range(num_epochs):
+    for epoch in range(epochs):
         model.train()
         total_loss = 0.0
         total_loss_valid = 0.0
-        print(f"Epoca {epoch+1}/{num_epochs}: \n\tLoss sul train set:")
+        print(f"Epoca {epoch+1}/{epochs}: \n\tLoss sul train set:")
         for images, targets in tqdm(data_loader_train, desc=f"\t\t"):
             images = list(img.to(device) for img in images)
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
@@ -91,21 +91,30 @@ def train(experiment_name,dataset_path,batch_size=1,imgsz=416,momentum=0.9,lr=0.
         writer.add_scalar("loss/train", total_loss, epoch+1)
         writer.add_scalar("loss/valid", total_loss_valid, epoch+1)
         
-        
+        # Crea un dizionario per contenere tutti i dati da salvare insieme al modello
+        checkpoint = {
+            'model_state_dict': model.state_dict(),
+            'class_names': dataset_train.classes,
+            'optimizer_state_dict': optimizer.state_dict(),
+            'epoch': epoch,
+            'total_loss': total_loss,
+            'total_loss_valid': total_loss_valid,
+            'lr_scheduler_state_dict': lr_scheduler.state_dict()
+        }
 
         #EVALUATION PER EPOCA SUL VALID SET
         model.eval() 
-        print("\tEvaluation sul valid set:\n")
+        print("\tEvaluation sul valid set:")
         current_score_valid = evaluate_metrics(experiment_name=experiment_name,model=model, data_loader=data_loader_valid, device=device, epoch=epoch+1,set="valid")
 
         os.makedirs(save_weights_dir, exist_ok=True)
         
         if current_score_valid > best_score_valid:
             best_score_valid = current_score_valid
-            torch.save(model.state_dict(), f"{save_weights_dir}/fasterrcnn_voc_best.pth")
+            torch.save(checkpoint, f"{save_weights_dir}/fasterrcnn_voc_best.pth")
             
 
-        torch.save(model.state_dict(), f"{save_weights_dir}/fasterrcnn_voc_last.pth")
+        torch.save(checkpoint, f"{save_weights_dir}/fasterrcnn_voc_last.pth")
 
         gc.collect()
         torch.cuda.empty_cache()

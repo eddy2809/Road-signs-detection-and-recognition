@@ -5,9 +5,9 @@ import os
 sys.path.append(os.path.abspath(".."))
 from utils.dataset import VOCDataset    
 from utils.engine import show_predictions
+from utils.engine import load_custom_fasterrcnn_model
 
-
-def predict(experiment_name,model,dataset_path):
+def dataset_predict(experiment_name,model,dataset_path):
 
     """
     Valuta un modello Faster R-CNN su un set di dati di test utilizzando i pesi del miglior modello dell'esperimento passato in input.
@@ -21,11 +21,9 @@ def predict(experiment_name,model,dataset_path):
         Nessuno
     """
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    dataset_train = VOCDataset(dataset_path, image_set="train")
     dataset_test = VOCDataset(dataset_path, image_set="test")
-    class_names = dataset_train.classes
-    
-    show_predictions(experiment_name=experiment_name,model=model,dataset=dataset_test,device=device,score_threshold=0.25,class_names=class_names)
+    _,classes = load_custom_fasterrcnn_model(model_path=f"{experiment_name}/weights/fasterrcnn_voc_best.pth",imgsz=416)
+    show_predictions(experiment_name=experiment_name,model=model,dataset=dataset_test,device=device,score_threshold=0.25,class_names=classes)
 
     del model
     gc.collect()

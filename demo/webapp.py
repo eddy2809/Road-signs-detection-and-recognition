@@ -75,10 +75,10 @@ if mode == "Immagine":
         # Mostra immagini prima e dopo il rilevamento
         col1, col2 = st.columns(2)
         with col1:
-            st.image(image_np, caption="Immagine Originale", use_column_width=True)
+            st.image(image_np, caption="Immagine Originale", use_container_width=True)
         with col2:
             res_plotted_rgb = cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
-            st.image(res_plotted_rgb, caption="Risultato YOLO", use_column_width=True)
+            st.image(res_plotted_rgb, caption="Risultato YOLO", use_container_width=True)
 
         # Visualizza il tempo di inferenza
         st.success(f"Inferenza completata in {inference_time:.2f} secondi.")
@@ -111,14 +111,14 @@ elif mode == "Video":
         if col1.button("Avvia elaborazione"):
             st.session_state.stop_inferenza = False
             st.session_state.elaborazione_in_corso = True
-            st.experimental_rerun()
+            st.rerun()
 
         # Pulsante per interrompere l'elaborazione (attivo solo se in corso)
         if col2.button("Interrompi elaborazione", disabled=not st.session_state.elaborazione_in_corso):
             st.session_state.stop_inferenza = True
             st.session_state.elaborazione_in_corso = False
             st.session_state.elaborazione_interrotta = True
-            st.experimental_rerun()
+            st.rerun()
 
         # Messaggio se l'elaborazione è stata interrotta
         elif st.session_state.elaborazione_interrotta:
@@ -176,7 +176,7 @@ elif mode == "Video":
                 # Disegna bounding box e mostra in tempo reale
                 plotted = result.plot()
                 frame_rgb = cv2.cvtColor(plotted, cv2.COLOR_BGR2RGB)
-                stframe.image(frame_rgb, caption=f"Frame {current_frame + 1}", channels="RGB", use_column_width=True)
+                stframe.image(frame_rgb, caption=f"Frame {current_frame + 1}", channels="RGB", use_container_width=True)
 
                 # Salva il frame come immagine
                 frame_path = os.path.join(output_frames_subdir, f"frame_{current_frame:04d}.jpg")

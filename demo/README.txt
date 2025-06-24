@@ -6,10 +6,13 @@ Bisogna assicurarsi di usare la più recente versione di **Streamlit** (attualme
 
 Per eseguire la webapp:
 
-1. Spostarsi nella cartella contenente il file `webapp.py`.
+1. Spostarsi nella cartella contenente il file `main.py`.
 2. Eseguire i seguenti comandi da terminale:
 
 ```bash
 pip install -r requirements.txt
 streamlit run webapp.py
 
+## Note
+
+Il primo avvio della webapp sarà più lento rispetto ai successivi per via del download da HuggingFace del modello FasterRCNN di 315 MB.

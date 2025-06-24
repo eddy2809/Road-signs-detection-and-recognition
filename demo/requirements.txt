@@ -3,3 +3,7 @@ ultralytics
 opencv-python
 Pillow
 numpy
+torch
+torchvision
+matplotlib
+requests

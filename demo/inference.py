@@ -103,7 +103,7 @@ def predict_video_stream_frcnn(
             pred_img = draw_bounding_boxes(
                 (input_tensor * 255).byte().cpu(), boxes,
                 labels=[f"{classes[l.item()]}: {s.item():.2f}" for l, s in zip(labels, scores)],
-                colors=colors, width=2, font_size=20, font="arial"
+                colors=colors, width=2, font_size=20
             )
 
             frame_np = pred_img.permute(1, 2, 0).cpu().numpy()

@@ -46,10 +46,6 @@ def evaluate_metrics(experiment_name,model, data_loader, device,epoch,set):
             images = [img.to(device) for img in images]
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
             outputs = model(images)
-            # for output in outputs:
-            #     keep = output["scores"] > 0.25  # puoi alzarlo a 0.2-0.3 se vuoi più pulizia
-            #     for key in ["boxes", "labels", "scores"]:
-            #         output[key] = output[key][keep]
             metric.update(outputs, targets)
             torch.cuda.empty_cache()
 

@@ -11,7 +11,7 @@ Per eseguire la webapp:
 
 ```bash
 pip install -r requirements.txt
-streamlit run webapp.py
+streamlit run main.py
 
 ## Note
 

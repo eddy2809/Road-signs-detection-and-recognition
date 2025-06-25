@@ -20,7 +20,6 @@ import random
 # Caricamento del modello YOLO
 model = YOLO("./models/yolo12_best.pt")
 
-
 # Caricamento del modello Faster R-CNN personalizzato
 fasterrcnn_model, class_names = load_custom_fasterrcnn_model(
     model_path="./models/fasterrcnn_voc_best.pth", imgsz=416
@@ -98,17 +97,15 @@ if mode == "Immagine":
             boxes = pred['boxes'][keep].cpu()
             labels = pred['labels'][keep].cpu()
             scores = pred['scores'][keep].cpu()
-
-            # Disegna i bounding box con etichette e confidenza
+            
             drawn = draw_bounding_boxes(
                 (input_tensor * 255).byte().cpu(),
-                boxes,
-                labels=[f"{classes[l.item()]}: {s.item():.2f}" for l, s in zip(labels, scores)],
-                colors=["#{:06x}".format(random.randint(0, 0xFFFFFF)) for _ in labels],
-                width=2, font_size=20, font="arial"
-            )
-            res_plotted = to_pil_image(drawn)
-            inference_time = time.time() - start_time
+                 boxes,
+                 labels=[f"{classes[l.item()]}: {s.item():.2f}" for l, s in zip(labels, scores)],
+                 colors=["#{:06x}".format(random.randint(0, 0xFFFFFF)) for _ in labels],
+                 width=2,
+                 font_size=20
+)
 
         # Visualizza immagine originale e risultato
         col1, col2 = st.columns(2)

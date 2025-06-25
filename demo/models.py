@@ -53,7 +53,7 @@ def load_custom_fasterrcnn_model(model_path, imgsz):
     """
     
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
-    hf_url = "https://huggingface.co/lorelarocca2001/FasterRCNN/resolve/main/fasterrcnn_voc_best.pth"
+    hf_url = "https://huggingface.co/lorelarocca2001/FasterRCNN_best/resolve/main/fasterrcnn_voc_best.pth"
     download_from_hf(hf_url, model_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     checkpoints = torch.load(model_path, map_location=device)

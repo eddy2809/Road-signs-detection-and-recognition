@@ -4,3 +4,8 @@ Pillow
 pandas
 tqdm
 opencv-python
+streamlit==1.46.0
+ultralytics
+numpy
+matplotlib
+requests

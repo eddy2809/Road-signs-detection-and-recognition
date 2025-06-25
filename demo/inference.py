@@ -32,7 +32,7 @@ def compute_img(model_path, img, device, imgsz):
     image = Image.open(img).convert('RGB')
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize((imgsz, imgsz))
+        transforms.Resize((imgsz))
     ])
     input_tensor = transform(image).to(device)
     with torch.no_grad():

@@ -106,6 +106,9 @@ if mode == "Immagine":
                  width=2,
                  font_size=20
 )
+            
+        res_plotted = to_pil_image(drawn)
+        inference_time = time.time() - start_time
 
         # Visualizza immagine originale e risultato
         col1, col2 = st.columns(2)

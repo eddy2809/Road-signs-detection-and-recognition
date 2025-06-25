@@ -27,7 +27,7 @@ def dataset_train(experiment_name,dataset_path,epochs=5,imgsz=416,momentum=0.9,l
     Restituisce:
         torch.nn.Module: il modello addestrato.
     """
-    batch_size=1 #fisso per frcnn altrimenti da problemi
+    batch_size=2 #fisso per frcnn altrimenti da problemi
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     save_weights_dir = f"{experiment_name}/weights"
     
@@ -45,7 +45,7 @@ def dataset_train(experiment_name,dataset_path,epochs=5,imgsz=416,momentum=0.9,l
 
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(params, lr=lr, momentum=momentum, weight_decay=0.0005)
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
 
     best_score_valid = 0.0
     for epoch in range(epochs):

@@ -37,7 +37,7 @@ model_type = st.sidebar.radio(
 )
 
 # Titolo principale della WebApp
-st.title("Traffics Signs Detection WebApp")
+st.title("Traffic Signs Detection WebApp")
 
 # Selezione dimensione immagine per l'inferenza
 imgsz = st.selectbox(

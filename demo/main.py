@@ -104,11 +104,10 @@ if mode == "Immagine":
                  labels=[f"{classes[l.item()]}: {s.item():.2f}" for l, s in zip(labels, scores)],
                  colors=["#{:06x}".format(random.randint(0, 0xFFFFFF)) for _ in labels],
                  width=2,
-                 font_size=20
-)
+                 font_size=20)
             
-        res_plotted = to_pil_image(drawn)
-        inference_time = time.time() - start_time
+            res_plotted = to_pil_image(drawn)
+            inference_time = time.time() - start_time
 
         # Visualizza immagine originale e risultato
         col1, col2 = st.columns(2)

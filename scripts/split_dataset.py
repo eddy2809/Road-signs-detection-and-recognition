@@ -1,3 +1,13 @@
+'''
+
+Questo script divide un dataset in formato YOLO (con immagini .jpg e annotazioni .txt)
+in tre sottoinsiemi: train (70%), valid (20%), e test (10%), mescolando i dati in modo casuale.
+Per ciascuno split, copia le immagini e i relativi file di annotazione nelle rispettive sottocartelle 
+dentro out_dataset/train, out_dataset/valid, out_dataset/test.
+
+'''
+
+
 import os
 import random
 import shutil

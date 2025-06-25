@@ -1,3 +1,12 @@
+'''
+Questo script riorganizza un dataset annotato (in formato Pascal VOC) 
+scaricato da Roboflow in una struttura classica Pascal VOC, 
+copiando immagini e annotazioni nelle rispettive cartelle (JPEGImages e Annotations)
+e generando i file train.txt, val.txt e test.txt nella cartella ImageSets/Main. 
+
+'''
+
+
 import os
 import shutil
 

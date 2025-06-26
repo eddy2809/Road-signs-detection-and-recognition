@@ -47,7 +47,6 @@ Il primo avvio della webapp sarà più lento rispetto ai successivi per via del 
 
 ## Struttura del progetto
 
-## Struttura del progetto
 
 - `demo/` – Webapp Streamlit per la dimostrazione del progetto su immagini o video
 - `docs/` – Relazione tecnica sul progetto

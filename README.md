@@ -15,6 +15,7 @@ I segnali stradali sono i seguenti:
 * segnale di limite di velocità da 20 a 120 km/h;  
 
 Tra le architetture one-stage allo stato dell'arte, è stato scelto di utilizzare [YOLOV12](https://docs.ultralytics.com/models/yolo12/), mentre tra quelle two-stage è stato scelto [Faster_RCNN_ResNet50](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html).
+Il team degli sviluppatori del progetto è composto da Lorenzo La Rocca, Raffaele Terracino, Edoardo Tantari.
 
 ## Requisiti
 Per poter procedere all'esecuzione dei diversi notebook presenti nel repository e della demo, è necessario prima installarne le relative dipendenze come segue:  

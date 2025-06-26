@@ -5,7 +5,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 def get_model(num_classes,imgsz):
     """
-    Crea un modello Faster R-CNN con backbone ResNet-50-FPN, pre-addestrato sul set di dati COCO,
+    Crea un modello Faster R-CNN con backbone ResNet-50-FPN, pre-addestrato sul dataset COCO,
     personalizzato per un numero specificato di classi e dimensioni dell'immagine.
 
     Argomenti:

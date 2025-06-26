@@ -38,7 +38,7 @@ with open(test_file_path, 'w') as f:
     for image_id in test_ids:
         f.write(f"{image_id}\n")
 
-print(f"Split completato:")
+print("Split completato:")
 print(f"  Train: {len(train_ids)}")
 print(f"  Valid: {len(valid_ids)}")
 print(f"  Test : {len(test_ids)}")

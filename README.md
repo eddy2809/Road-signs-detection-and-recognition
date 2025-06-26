@@ -12,7 +12,7 @@ I segnali stradali sono i seguenti:
 * segnale di stop;
 * semaforo di colore verde;
 * semaforo di colore rosso;
-* segnale di limite di velocità da 20 a 120;  
+* segnale di limite di velocità da 20 a 120 km/h;  
 
 Tra le architetture one-stage allo stato dell'arte, è stato scelto di utilizzare [YOLOV12](https://docs.ultralytics.com/models/yolo12/), mentre tra quelle two-stage è stato scelto [Faster_RCNN_ResNet50](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html).
 
@@ -44,3 +44,14 @@ streamlit run main.py
 ## Note
 
 Il primo avvio della webapp sarà più lento rispetto ai successivi per via del download da [HuggingFace](https://huggingface.co/) del modello FasterRCNN di 315 MB.
+
+## Struttura del progetto
+
+- `demo/` – Webapp Streamlit per la dimostrazione del progetto su immagini o video
+- `docs/` – Relazione tecnica sul progetto
+- `models/` – Checkpoint e metriche dei modelli YOLO e Faster R-CNN addestrati
+- `scripts/` – Script ausiliari per la costruzione del dataset
+- `src/` – Codice sorgente principale per il training e l'inferenza dei modelli.
+- `.gitignore` – File per escludere elementi non tracciati dal versionamento Git
+- `README.md` – Descrizione del progetto, istruzioni e note tecniche
+- `requirements.txt` – Elenco delle dipendenze Python necessarie all'esecuzione

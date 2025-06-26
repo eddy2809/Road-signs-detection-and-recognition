@@ -18,7 +18,7 @@ def dataset_predict(experiment_name,model,dataset_path,imgsz=416):
         dataset_path (str): il percorso del set di dati in formato VOC.
 
     Restituisce:
-        Nessuno
+        None
     """
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     dataset_test = VOCDataset(dataset_path, image_set="test")

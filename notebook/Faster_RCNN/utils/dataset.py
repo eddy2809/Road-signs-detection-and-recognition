@@ -73,7 +73,6 @@ class VOCDataset(Dataset):
             boxes.append(bbox)
 
         if len(boxes) == 0:
-            # 🔁 Prova a caricare un'altra immagine se questa è vuota
             return self.__getitem__((idx + 1) % len(self))
 
             

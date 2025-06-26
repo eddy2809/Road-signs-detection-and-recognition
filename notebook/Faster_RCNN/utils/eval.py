@@ -27,7 +27,7 @@ def dataset_eval(experiment_name,model,dataset_path,imgsz=416):
         imgsz (int, opzionale): la dimensione delle immagini utilizzate per la valutazione. Il valore predefinito è 416.
 
     Restituisce:
-        Nessuno
+        None
 
     """
     batch_size=1 

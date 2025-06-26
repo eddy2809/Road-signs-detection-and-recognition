@@ -12,7 +12,7 @@ I segnali stradali sono i seguenti:
 * segnale di stop;
 * semaforo di colore verde;
 * semaforo di colore rosso;
-* segnale di limite di velocità da 20 a 120;  
+* segnale di limite di velocità da 20 a 120 km/h;  
 
 Tra le architetture one-stage allo stato dell'arte, è stato scelto di utilizzare [YOLOV12](https://docs.ultralytics.com/models/yolo12/), mentre tra quelle two-stage è stato scelto [Faster_RCNN_ResNet50](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html).
 

@@ -1,8 +1,8 @@
 # Road signs detection and recognition
 
 ## Descrizione
-Il seguente repository è relativo al progetto dell'insegnamento [Machine Learning](https://www.dmi.unict.it/farinella/ML/), tenuto presso il Dipartimento di Matematica e Informatica dell'Università di Catania.  
-Il problema che si pone per lo sviluppo del progetto  è quindi di costruire e confrontare diversi modelli di **object detection** che siano in grado di rilevare e classificare segnali stradali. Nel contesto del progetto è stato scelto un sottoinsieme di 19 classi tra tutti i possibili segnali stradali europei.  
+Il seguente repository è relativo al progetto dell'insegnamento [Machine Learning](https://www.dmi.unict.it/farinella/ML/), tenuto presso il Dipartimento di Matematica e Informatica dell'Università di Catania.  Il team degli sviluppatori del progetto è composto da Lorenzo La Rocca, Raffaele Terracino, Edoardo Tantari.
+Il problema che si pone per lo sviluppo del progetto  è quello di costruire e confrontare diversi modelli di **object detection** che siano in grado di rilevare e classificare segnali stradali. Nel contesto del progetto è stato scelto un sottoinsieme di 19 classi tra tutti i possibili segnali stradali europei.  
 
 I segnali stradali sono i seguenti:  
 * segnale di direzione obbligatoria a sinistra;

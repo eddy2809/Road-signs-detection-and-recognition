@@ -128,7 +128,6 @@ def predict_video_stream_frcnn(
             if log_output:
                 log_output.code(f"Frame elaborati: {current_frame + 1} / {frame_count}", language="log")
 
-            #current_frame += 1
 
     cap.release()
     out.release()

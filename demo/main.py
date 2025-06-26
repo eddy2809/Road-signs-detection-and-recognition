@@ -61,7 +61,7 @@ if "processing" not in st.session_state:
 if "stop" not in st.session_state:
     st.session_state.stop = False
 
-# === IMMAGINE ===
+# Inferenza su immagini
 if mode == "Immagine":
     uploaded_file = st.file_uploader("Carica un'immagine", type=['jpg', 'jpeg', 'png'])
 
@@ -122,7 +122,7 @@ if mode == "Immagine":
 
         st.success(f"Inferenza completata in {inference_time:.2f} secondi.")
 
-# === VIDEO ===
+# Inferenza su video
 elif mode == "Video":
     uploaded_video = st.file_uploader("Carica un video", type=["mp4"])
 
@@ -168,7 +168,7 @@ elif mode == "Video":
             status_message = st.empty()
             status_message.info(f"Inferenza {model_type} in corso...")
 
-            # Estrai info video
+            # Estrae info del video
             cap = cv2.VideoCapture(temp_input_path)
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -176,7 +176,7 @@ elif mode == "Video":
             fps = cap.get(cv2.CAP_PROP_FPS)
             cap.release()
 
-            # Prepara nomi file e cartelle per salvataggio
+            # Prepara i path delle directory di output
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             base_filename = os.path.splitext(os.path.basename(temp_input_path))[0]
             output_video_path = os.path.join("videos", f"{base_filename}_{timestamp}.mp4")
@@ -184,7 +184,7 @@ elif mode == "Video":
             os.makedirs("videos", exist_ok=True)
             os.makedirs(output_frames_subdir, exist_ok=True)
 
-            # === YOLO: inferenza frame per frame ===
+            # Inferenza con YOLO su video
             if model_type == "YOLO":
                 fourcc = cv2.VideoWriter_fourcc(*"mp4v")
                 video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
@@ -215,7 +215,6 @@ elif mode == "Video":
                     cv2.imwrite(frame_path, plotted)
                     video_writer.write(plotted)
 
-                    #current_frame += 1
                     progress = min(current_frame / total_frames, 1.0)
                     progress_bar.progress(progress)
                     elapsed = time.time() - start_time
@@ -226,7 +225,7 @@ elif mode == "Video":
 
                 video_writer.release()
 
-            # === Faster R-CNN: inferenza con funzione custom ===
+            # Faster R-CNN: inferenza con funzione custom
             else:
                 predict_video_stream_frcnn(
                     model_path="./models/fasterrcnn_voc_best.pth",

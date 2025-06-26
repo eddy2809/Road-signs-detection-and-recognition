@@ -93,10 +93,8 @@ class VOCDataset(Dataset):
 
     def __len__(self):
         """
-        Returns the total number of images in the dataset.
+        Restituisce la dimensione del dataset.
 
-        Returns:
-            int: The size of the dataset.
         """
         return len(self.image_ids)
     

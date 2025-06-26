@@ -47,11 +47,18 @@ Il primo avvio della webapp sarà più lento rispetto ai successivi per via del 
 
 ## Struttura del progetto
 
+## Struttura del progetto
+
 - `demo/` – Webapp Streamlit per la dimostrazione del progetto su immagini o video
 - `docs/` – Relazione tecnica sul progetto
 - `models/` – Checkpoint e metriche dei modelli YOLO e Faster R-CNN addestrati
 - `scripts/` – Script ausiliari per la costruzione del dataset
-- `src/` – Codice sorgente principale per il training e l'inferenza dei modelli.
+- `src/` – Codice sorgente principale per il training e l'inferenza dei modelli
+  - `yolo/`
+    - `training_template.ipynb` – Notebook per l'addestramento del modello YOLO
+  - `Faster_RCNN/`
+    - `main.ipynb` – Notebook per l'addestramento e l'inferenza con Faster R-CNN
 - `.gitignore` – File per escludere elementi non tracciati dal versionamento Git
 - `README.md` – Descrizione del progetto, istruzioni e note tecniche
 - `requirements.txt` – Elenco delle dipendenze Python necessarie all'esecuzione
+

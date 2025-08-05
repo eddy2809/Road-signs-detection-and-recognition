@@ -1,63 +1,40 @@
 # Road signs detection and recognition
 
 ## Descrizione
-Il seguente repository è relativo al progetto dell'insegnamento [Machine Learning](https://www.dmi.unict.it/farinella/ML/), tenuto presso il Dipartimento di Matematica e Informatica dell'Università di Catania.  Il team degli sviluppatori del progetto è composto da Lorenzo La Rocca, Raffaele Terracino, Edoardo Tantari.
-Il problema che si pone per lo sviluppo del progetto  è quello di costruire e confrontare diversi modelli di **object detection** che siano in grado di rilevare e classificare segnali stradali. Nel contesto del progetto è stato scelto un sottoinsieme di 19 classi tra tutti i possibili segnali stradali europei.  
+This repository is related to the project for the [Machine Learning](https://www.dmi.unict.it/farinella/ML/) course, which was held at the Department of Mathematics and Computer Science of the University of Catania by prof. Giovanni Maria Farinella.  
+The project development team is composed of Lorenzo La Rocca, Raffaele Terracino, and Edoardo Tantari.  
+The goal of the project is to build and compare different **object detection** models capable of detecting and classifying road signs. For this project, a subset of 19 classes was selected from all possible European road signs.
 
-I segnali stradali sono i seguenti:  
-* segnale di direzione obbligatoria a sinistra;
-* segnale di direzione obbligatoria a destra;
-* segnale di dare precedenza;
-* segnale di divieto di accesso;
-* segnale di stop;
-* semaforo di colore verde;
-* semaforo di colore rosso;
-* segnale di limite di velocità da 20 a 120 km/h;  
+This subset includes the following road signs:
+* mandatory left turn sign  
+* mandatory right turn sign  
+* yield sign  
+* no entry sign  
+* stop sign  
+* green traffic light  
+* red traffic light  
+* speed limit signs from 20 to 120 km/h  
 
-Tra le architetture one-stage allo stato dell'arte, è stato scelto di utilizzare [YOLOV12](https://docs.ultralytics.com/models/yolo12/), mentre tra quelle two-stage è stato scelto [Faster_RCNN_ResNet50](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html).
+Among the state-of-the-art one-stage architectures, [YOLOV12](https://docs.ultralytics.com/models/yolo12/) was selected. For the two-stage approach, [Faster_RCNN_ResNet50](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html) was used. 
 
-## Requisiti
-Per poter procedere all'esecuzione dei diversi notebook presenti nel repository e della demo, è necessario prima installarne le relative dipendenze come segue:  
-```
-#Creare un ambiente virtuale ed eseguire il comado successivo
-pip install -r requirements.txt
-```
-## Esecuzione
-I notebook jupyter relativi alle fasi di **training**, **evaluation** e **testing** dei diversi modelli sono contenuti nella sezione `notebook`.  
+## Project structure
+- `demo/` – contains the streamlit web app for running inference on images and videos
+- `docs/` – contains the technical report describing data collection, models, experiments, source code and demo
+- `models/` – contains metrics and checkpoints of trained models
+- `scripts/` – contains scripts for dataset pre-processing
+- `src/` – contains the source code for training and evaluating the models
+  - `yolo/` - contains a notebook for training, evaluation and inference on YOLO v12 using the **Ultralytics** library 
+  - `Faster_RCNN/` - contains a notebook and scripts for training, evaluation and inference on Faster R-CNN, written using **Pytorch**
+- `requirements.txt` – list of python dependencies to run scripts, notebooks and the demo
 
-
-# Demo
-
-Bisogna assicurarsi di usare la più recente versione di **Streamlit** (attualmente `1.46.0`).
-
-## Esecuzione
-
-Per eseguire la webapp:
-
-1. Spostarsi nella cartella`demo`.
-2. Eseguire il seguente comando da terminale:
+## Running the demo
+After installing the dependencies listed in `requirements.txt`, move to  `demo/` and run the following command:
 
 ```bash
 streamlit run main.py
 ```
 
-## Note
+## Demo screenshots
 
-Il primo avvio della webapp sarà più lento rispetto ai successivi per via del download da [HuggingFace](https://huggingface.co/) del modello FasterRCNN di 315 MB.
-
-## Struttura del progetto
-
-
-- `demo/` – Webapp Streamlit per la dimostrazione del progetto su immagini o video
-- `docs/` – Relazione tecnica sul progetto
-- `models/` – Checkpoint e metriche dei modelli YOLO e Faster R-CNN addestrati
-- `scripts/` – Script ausiliari per la costruzione del dataset
-- `src/` – Codice sorgente principale per il **training** e l'**inferenza** dei modelli
-  - `yolo/`
-    - `training_template.ipynb` – Notebook per l'addestramento e l'inferenza con YOLO
-  - `Faster_RCNN/`
-    - `main.ipynb` – Notebook per l'addestramento e l'inferenza con Faster R-CNN
-- `.gitignore` – File per escludere elementi non tracciati dal versionamento Git
-- `README.md` – Descrizione del progetto, istruzioni e note tecniche
-- `requirements.txt` – Elenco delle dipendenze Python necessarie all'esecuzione
-
+## Notes
+The first time you launch the web app, it will be slower than subsequent launches due to the download of the trained 315 MB FasterRCNN model from [HuggingFace](https://huggingface.co/).

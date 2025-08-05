@@ -1,6 +1,6 @@
 # Road signs detection and recognition
 
-## Descrizione
+## Description
 This repository is related to the project for the [Machine Learning](https://www.dmi.unict.it/farinella/ML/) course, which was held at the Department of Mathematics and Computer Science of the University of Catania by prof. Giovanni Maria Farinella.  
 The project development team is composed of Lorenzo La Rocca, Raffaele Terracino, and Edoardo Tantari.  
 The goal of the project is to build and compare different **object detection** models capable of detecting and classifying road signs. For this project, a subset of 19 classes was selected from all possible European road signs.
@@ -35,6 +35,11 @@ streamlit run main.py
 ```
 
 ## Demo screenshots
+
+### Inference on images
+![](docs/screen_demo.png)
+### Inference on videos
+![](docs/screen_demo_video.png)
 
 ## Notes
 The first time you launch the web app, it will be slower than subsequent launches due to the download of the trained 315 MB FasterRCNN model from [HuggingFace](https://huggingface.co/).
